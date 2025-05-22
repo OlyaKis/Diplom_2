@@ -1,7 +1,7 @@
 import pytest
-import random
-import string
 from utils.api_client import StellarBurgersAPI
+from utils.helpers import generate_random_email
+import allure
 
 
 @pytest.fixture(scope="function")
@@ -9,16 +9,16 @@ def api():
     return StellarBurgersAPI()
 
 
-def generate_random_email():
-    return "".join(random.choices(string.ascii_lowercase, k=10)) + "@gmail.com"
-
 @pytest.fixture(scope="function")
 def new_user(api):
     email = generate_random_email()
     password = "123456"
     name = "TestName"
-    resp = api.register_user(email, password, name)
-    assert resp.status_code == 200
-    token = resp.json()["accessToken"]
+    with allure.step("Зарегистрировать нового пользователя"):
+        resp = api.register_user(email, password, name)
+        if resp.status_code != 200:
+            raise RuntimeError(f"Не удалось создать пользователя: {resp.status_code}, {resp.text}")
+        token = resp.json()["accessToken"]
     yield {"email": email, "password": password, "token": token}
-    api.delete_user(token)
+    with allure.step("Удалить пользователя после теста"):
+        api.delete_user(token)
