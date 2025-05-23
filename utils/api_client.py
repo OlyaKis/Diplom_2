@@ -43,13 +43,11 @@ class StellarBurgersAPI:
 
     @allure.step("Создание заказа")
     def create_order(self, ingredients, token=None):
-        auth = "да" if token else "нет"
         headers = {"Authorization": token} if token else {}
         return self.session.post(f"{BASE_URL}/orders", json={"ingredients": ingredients}, headers=headers)
 
     @allure.step("Получение заказов пользователя")
     def get_user_orders(self, token=None):
-        auth = "да" if token else "нет"
         headers = {"Authorization": token} if token else {}
         return self.session.get(f"{BASE_URL}/orders", headers=headers)
 
